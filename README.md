@@ -14,7 +14,7 @@ Automated API testing framework for [demoqa.com](https://demoqa.com), targeting 
 
 ## 📁 Project Structure
 
-​```
+```
 src/test/
 ├── java/
 │   ├── client/              # APIClient - base URI, content type, HTTP methods
@@ -26,7 +26,7 @@ src/test/
 │       └── bookstore/       # GetBooks, AddBooks, UpdateBook, DeleteBook tests
 └── resources/
     └── testdata/            # JSON test data files
-​```
+```
 
 ## ✅ Test Scenarios
 
