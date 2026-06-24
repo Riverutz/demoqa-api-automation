@@ -10,9 +10,10 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 import pages.LoginPage;
 import requestObject.RequestUser;
+import responseObject.ResponseGetUser;
+import responseObject.ResponseGetUserFailed;
 import responseObject.ResponseToken;
 import responseObject.ResponseUser;
-
 import java.time.Duration;
 
 public class CreateUserBETest {
@@ -106,7 +107,15 @@ public class CreateUserBETest {
         request.header("Authorization", "Bearer " + token);
 
         Response response = request.get("/Account/v1/User/" + userId);
-        response.body().prettyPrint();
+
+        if (response.getStatusCode() == 200) {
+            ResponseGetUser responseBody = response.getBody().as(ResponseGetUser.class);
+            System.out.println(responseBody.getUserId());
+            System.out.println(responseBody);
+        } else {
+            ResponseGetUserFailed responseBody = response.getBody().as(ResponseGetUserFailed.class);
+            System.out.println(responseBody.getMessage());
+        }
     }
 
     public void applicationLogin() {
@@ -131,3 +140,4 @@ public class CreateUserBETest {
         response.body().prettyPrint();
     }
 }
+
