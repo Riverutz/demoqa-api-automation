@@ -14,11 +14,13 @@ import responseObject.ResponseGetUser;
 import responseObject.ResponseGetUserFailed;
 import responseObject.ResponseToken;
 import responseObject.ResponseUser;
+import services.AccountService;
+
 import java.time.Duration;
 
 public class CreateUserBETest {
+    public AccountService accountService;
 
-    public String baseUri = "https://demoqa.com";
     public RequestUser requestBody;
     public WebDriver driver;
     public String userId;
@@ -51,71 +53,22 @@ public class CreateUserBETest {
     }
 
     public void createAccount() {
-        RequestSpecification request = RestAssured.given();
-        request.contentType(ContentType.JSON);
-        request.baseUri(baseUri);
-
         requestBody = new RequestUser("src/test/resources/createUser.json");
+        accountService = new AccountService();
 
-        System.out.println(requestBody);
-        request.body(requestBody);
-
-        Response response = request.post("/Account/v1/User");
-
-        System.out.println(response.getStatusCode());
-
-        Assert.assertEquals(response.getStatusCode(), 201);
-        Assert.assertTrue(response.getStatusLine().contains("Created"));
-
-        ResponseUser responseBody = response.getBody().as(ResponseUser.class);
-        Assert.assertEquals(requestBody.getUserName(), responseBody.getUsername());
-        System.out.println(responseBody);
+        ResponseUser responseBody = accountService.createAccount(requestBody);
 
         userId = responseBody.getUserId();
     }
 
     public void generateToken() {
-        RequestSpecification request = RestAssured.given();
-        request.contentType(ContentType.JSON);
-        request.baseUri(baseUri);
-
-        request.body(requestBody);
-
-        Response response = request.post("/Account/v1/GenerateToken");
-
-        System.out.println(response.getStatusCode());
-
-        Assert.assertEquals(response.getStatusCode(), 200);
-        Assert.assertTrue(response.getStatusLine().contains("OK"));
-
-        ResponseToken responseBody = response.getBody().as(ResponseToken.class);
-
-        System.out.println(responseBody.getToken());
-
-        Assert.assertNotNull(responseBody.getToken(), "Token should not be null");
-
-        System.out.println(responseBody);
+        ResponseToken responseBody = accountService.generateToken(requestBody);
 
         token = responseBody.getToken();
     }
 
     public void validateAccountBE() {
-        RequestSpecification request = RestAssured.given();
-        request.contentType(ContentType.JSON);
-        request.baseUri(baseUri);
-
-        request.header("Authorization", "Bearer " + token);
-
-        Response response = request.get("/Account/v1/User/" + userId);
-
-        if (response.getStatusCode() == 200) {
-            ResponseGetUser responseBody = response.getBody().as(ResponseGetUser.class);
-            System.out.println(responseBody.getUserId());
-            System.out.println(responseBody);
-        } else {
-            ResponseGetUserFailed responseBody = response.getBody().as(ResponseGetUserFailed.class);
-            System.out.println(responseBody.getMessage());
-        }
+        accountService.validateAccountBE(token, userId);
     }
 
     public void applicationLogin() {
@@ -130,14 +83,7 @@ public class CreateUserBETest {
     }
 
     public void deleteAccountBE() {
-        RequestSpecification request = RestAssured.given();
-        request.contentType(ContentType.JSON);
-        request.baseUri(baseUri);
-
-        request.header("Authorization", "Bearer " + token);
-
-        Response response = request.delete("/Account/v1/User/" + userId);
-        response.body().prettyPrint();
+        accountService.deleteAccountBE(token,userId);
     }
 }
 
